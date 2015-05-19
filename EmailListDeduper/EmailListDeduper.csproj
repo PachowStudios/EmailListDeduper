@@ -60,6 +60,7 @@
     <Compile Include="Data\Person.cs" />
     <Compile Include="Utility\CSV.cs" />
     <Compile Include="Utility\RelayCommand.cs" />
+    <Compile Include="Validation\ListNotEmpty.cs" />
     <Compile Include="View Models\ViewModelBase.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

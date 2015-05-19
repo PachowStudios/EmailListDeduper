@@ -20,6 +20,7 @@ namespace EmailListDeduper
 		public MainWindow()
 		{
 			InitializeComponent();
+			this.DataContext = new MainViewModel();
 		}
 	}
 }
