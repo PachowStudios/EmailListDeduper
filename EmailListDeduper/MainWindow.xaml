@@ -10,13 +10,13 @@
         Title="Email List Deduper" Height="319" Width="556" Background="#FFB2B2B2" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" d:DataContext="{d:DesignInstance {x:Type local:MainViewModel}, IsDesignTimeCreatable=True}">
 	<Grid>
 		<Label x:Name="DedupeLabel" Content="Files to dedupe" HorizontalAlignment="Left" Margin="20,20,0,0" VerticalAlignment="Top" Height="20" Width="240" Padding="5,2,0,0"/>
-		<ListBox x:Name="DedupeBox" HorizontalAlignment="Left" Height="115" Margin="20,40,0,0" VerticalAlignment="Top" Width="240" ItemsSource="{Binding FilesToDedupe}"/>
+		<ListBox x:Name="DedupeBox" HorizontalAlignment="Left" Height="115" Margin="20,40,0,0" VerticalAlignment="Top" Width="240" ItemsSource="{Binding FilesToDedupe}" IsSynchronizedWithCurrentItem="True" SelectionMode="Extended"/>
 		<Label x:Name="CompareLabel" Content="Files to compare against" HorizontalAlignment="Left" Margin="280,20,0,0" VerticalAlignment="Top" Height="20" Width="240" Padding="5,2,0,0"/>
-		<ListBox x:Name="CompareBox" HorizontalAlignment="Left" Height="115" Margin="280,40,0,0" VerticalAlignment="Top" Width="240" ItemsSource="{Binding FilesToCompareAgainst}"/>
+		<ListBox x:Name="CompareBox" HorizontalAlignment="Left" Height="115" Margin="280,40,0,0" VerticalAlignment="Top" Width="240" ItemsSource="{Binding FilesToCompareAgainst}" IsSynchronizedWithCurrentItem="True" SelectionMode="Extended"/>
 		<Button x:Name="DedupeAddButton" Content="Add" HorizontalAlignment="Left" Margin="20,160,0,0" VerticalAlignment="Top" Width="60" Command="{Binding AddDedupeCommand}"/>
-		<Button x:Name="DedupeRemoveButton" Content="Remove" HorizontalAlignment="Left" Margin="100,160,0,0" VerticalAlignment="Top" Width="60" Command="{Binding RemoveDedupeCommand}"/>
+		<Button x:Name="DedupeRemoveButton" Content="Remove" HorizontalAlignment="Left" Margin="100,160,0,0" VerticalAlignment="Top" Width="60" Command="{Binding RemoveDedupeCommand}" CommandParameter="{Binding SelectedItems, ElementName=DedupeBox}"/>
 		<Button x:Name="CompareAddButton" Content="Add" HorizontalAlignment="Left" Margin="280,160,0,0" VerticalAlignment="Top" Width="60" Command="{Binding AddCompareCommand}"/>
-		<Button x:Name="CompareRemoveButton" Content="Remove" HorizontalAlignment="Left" Margin="360,160,0,0" VerticalAlignment="Top" Width="60" Command="{Binding RemoveCompareCommand}"/>
+		<Button x:Name="CompareRemoveButton" Content="Remove" HorizontalAlignment="Left" Margin="360,160,0,0" VerticalAlignment="Top" Width="60" Command="{Binding RemoveCompareCommand}" CommandParameter="{Binding SelectedItems, ElementName=CompareBox}"/>
 		<TextBox x:Name="OutputFolderBox" HorizontalAlignment="Left" Height="20" Margin="20,200,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="360" AllowDrop="False" Focusable="False" Text="{Binding OutputFolder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
 		<Button x:Name="OutputFolderButton" Content="Select Output Folder" HorizontalAlignment="Left" Margin="400,200,0,0" VerticalAlignment="Top" Width="120" Command="{Binding SelectOutputFolderCommand}" Height="20"/>
 		<Button x:Name="RunButton" Content="Run" HorizontalAlignment="Left" Margin="460,240,0,0" VerticalAlignment="Top" Width="60" Command="{Binding RunCommand}"/>

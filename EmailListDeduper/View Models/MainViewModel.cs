@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace EmailListDeduper
 {
@@ -67,30 +69,46 @@ namespace EmailListDeduper
 		#region Command Methods
 		private void AddDedupe(object obj)
 		{
-			string fileName = OpenCsvFile();
+			var fileNames = OpenCsvFiles();
 
-			if (fileName != null)
-				FilesToDedupe.Add(fileName);
+			if (fileNames != null)
+				foreach (var fileName in fileNames)
+					FilesToDedupe.Add(fileName);
 		}
 
 		private void RemoveDedupe(object obj)
 		{
+			var selectedItems = ((IList)obj).Cast<string>().ToList();
+
+			foreach (var item in selectedItems)
+				FilesToDedupe.Remove(item);
 		}
 
 		private void AddCompare(object obj)
 		{
-			string fileName = OpenCsvFile();
+			var fileNames = OpenCsvFiles();
 
-			if (fileName != null)
-				FilesToCompareAgainst.Add(fileName);
+			if (fileNames != null)
+				foreach (var fileName in fileNames)
+					FilesToCompareAgainst.Add(fileName);
 		}
 
 		private void RemoveCompare(object obj)
 		{
+			var selectedItems = ((IList)obj).Cast<string>().ToList();
+
+			foreach (var item in selectedItems)
+				FilesToCompareAgainst.Remove(item);
 		}
 
 		private void SelectOutputFolder(object obj)
 		{
+			var folderDialog = new CommonOpenFileDialog();
+			folderDialog.IsFolderPicker = true;
+			folderDialog.EnsurePathExists = true;
+			
+			if (folderDialog.ShowDialog() == CommonFileDialogResult.Ok)
+				OutputFolder = folderDialog.FileName;
 		}
 
 		private void Run(object obj)
@@ -104,13 +122,15 @@ namespace EmailListDeduper
 		#endregion
 
 		#region Internal Methods
-		private string OpenCsvFile()
+		private string[] OpenCsvFiles()
 		{
-			OpenFileDialog openDialog = new OpenFileDialog();
+			var openDialog = new OpenFileDialog();
 			openDialog.Filter = "CSV Files (*.csv)|*.csv";
+			openDialog.Multiselect = true;
+			openDialog.CheckPathExists = true;
 
 			if (openDialog.ShowDialog() == true)
-				return openDialog.FileName;
+				return openDialog.FileNames;
 			else
 				return null;
 		}
