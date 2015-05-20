@@ -47,7 +47,7 @@ namespace EmailListDeduper
 			return this.canExecute != null && this.canExecute(parameter);
 		}
 
-		public void OnCanExecuteChangeD()
+		public void RaiseCanExecuteChanged()
 		{
 			EventHandler handler = this.canExecuteChanged;
 

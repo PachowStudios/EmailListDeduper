@@ -3,10 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 namespace EmailListDeduper
 {
@@ -15,26 +16,32 @@ namespace EmailListDeduper
 		public event PropertyChangedEventHandler PropertyChanged;
 		public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
+		public bool HasErrors
+		{ get { return errors.Any(kv => kv.Value != null && kv.Value.Count > 0); } }
+
+		public bool AutoValidate 
+		{
+			get { return autoValidate; }
+			set { autoValidate = value; }
+		}
+
 		private ConcurrentDictionary<string, List<string>> errors =
 			new ConcurrentDictionary<string, List<string>>();
 		private object threadLock = new object();
+		private bool autoValidate = true;
 
-		public bool HasErrors
-		{
-			get { return errors.Any(kv => kv.Value != null && kv.Value.Count > 0); }
-		}
-
-		public void RaisePropertyChanged(string propertyName)
+		public void RaisePropertyChanged([CallerMemberName] string propertyName = "")
 		{
 			var handler = PropertyChanged;
 
 			if (handler != null)
 				handler(this, new PropertyChangedEventArgs(propertyName));
 
-			ValidateAsync();
+			if (AutoValidate)
+				ValidateAsync();
 		}
 
-		public void OnErrorsChanged(string propertyName)
+		public void OnErrorsChanged([CallerMemberName] string propertyName = "")
 		{
 			var handler = ErrorsChanged;
 
@@ -93,6 +100,9 @@ namespace EmailListDeduper
 					errors.TryAdd(property.Key, messages);
 					OnErrorsChanged(property.Key);
 				}
+
+				RaisePropertyChanged("HasErrors");
+				CommandManager.InvalidateRequerySuggested();
 			}
 		}
 	}

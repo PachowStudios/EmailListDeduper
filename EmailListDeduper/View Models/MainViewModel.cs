@@ -17,19 +17,23 @@ namespace EmailListDeduper
 	public class MainViewModel : ViewModelBase
 	{
 		#region Commands
-		public ICommand AddDedupeCommand { get; set; }
-		public ICommand RemoveDedupeCommand { get; set; }
-		public ICommand AddCompareCommand { get; set; }
-		public ICommand RemoveCompareCommand { get; set; }
-		public ICommand SelectOutputFolderCommand { get; set; }
-		public ICommand RunCommand { get; set; }
+		public RelayCommand AddDedupeCommand { get; set; }
+		public RelayCommand RemoveDedupeCommand { get; set; }
+		public RelayCommand AddCompareCommand { get; set; }
+		public RelayCommand RemoveCompareCommand { get; set; }
+		public RelayCommand SelectOutputFolderCommand { get; set; }
+		public RelayCommand RunCommand { get; set; }
 
 		public bool CanRun
-		{ get { return (!HasErrors || !HasValidated) && CanInteract; } }
+		{ get { return !HasErrors && CanInteract; } }
 
-		public bool CanInteract { get; set; }
+		public bool CanInteract 
+		{
+			get { return canInteract; }
+			set { canInteract = value; CommandManager.InvalidateRequerySuggested(); }
+		}
 
-		public bool HasValidated { get; set; }
+		private bool canInteract = true;
 		#endregion
 
 		#region Bindable Properties
@@ -43,11 +47,7 @@ namespace EmailListDeduper
 		public string OutputFolder
 		{
 			get { return outputFolder; }
-			set
-			{
-				outputFolder = value;
-				RaisePropertyChanged("OutputFolder");
-			}
+			set { outputFolder = value; RaisePropertyChanged(); }
 		}
 		#endregion
 
@@ -67,7 +67,7 @@ namespace EmailListDeduper
 
 			FilesToDedupe = new ObservableCollection<string>();
 			FilesToCompareAgainst = new ObservableCollection<string>();
-			CanInteract = true;
+			AutoValidate = false;
 		}
 		#endregion
 
@@ -79,8 +79,6 @@ namespace EmailListDeduper
 			if (fileNames != null)
 				foreach (var fileName in fileNames)
 					FilesToDedupe.Add(fileName);
-
-			RaisePropertyChanged("FilesToDedupe");
 		}
 
 		private void RemoveDedupe(object obj)
@@ -89,8 +87,6 @@ namespace EmailListDeduper
 
 			foreach (var item in selectedItems)
 				FilesToDedupe.Remove(item);
-
-			RaisePropertyChanged("FilesToDedupe");
 		}
 
 		private void AddCompare(object obj)
@@ -100,8 +96,6 @@ namespace EmailListDeduper
 			if (fileNames != null)
 				foreach (var fileName in fileNames)
 					FilesToCompareAgainst.Add(fileName);
-
-			RaisePropertyChanged("FilesToCompareAgainst");
 		}
 
 		private void RemoveCompare(object obj)
@@ -110,24 +104,20 @@ namespace EmailListDeduper
 
 			foreach (var item in selectedItems)
 				FilesToCompareAgainst.Remove(item);
-
-			RaisePropertyChanged("FilesToCompareAgainst");
 		}
 
 		private void SelectOutputFolder(object obj)
 		{
-			var folderDialog = new CommonOpenFileDialog();
-			folderDialog.IsFolderPicker = true;
-			folderDialog.EnsurePathExists = true;
-			
-			if (folderDialog.ShowDialog() == CommonFileDialogResult.Ok)
-				OutputFolder = folderDialog.FileName;
+			var folderName = OpenFolder();
+
+			if (folderName != null)
+				OutputFolder = folderName;
 		}
 
 		private void Run(object obj)
 		{
 			Validate();
-			HasValidated = true;
+			AutoValidate = true;
 
 			if (HasErrors)
 				return;
@@ -178,6 +168,18 @@ namespace EmailListDeduper
 
 			if (openDialog.ShowDialog() == true)
 				return openDialog.FileNames;
+			else
+				return null;
+		}
+
+		private string OpenFolder()
+		{
+			var folderDialog = new CommonOpenFileDialog();
+			folderDialog.IsFolderPicker = true;
+			folderDialog.EnsurePathExists = true;
+
+			if (folderDialog.ShowDialog() == CommonFileDialogResult.Ok)
+				return folderDialog.FileName;
 			else
 				return null;
 		}
