@@ -124,37 +124,49 @@ namespace EmailListDeduper
 
 			CanInteract = false;
 
-			var itemsToCompareAgainst = new List<Person>();
-			var dedupedLists = new Dictionary<string, List<Person>>();
-
-			foreach (var fileName in FilesToCompareAgainst)
+			try
 			{
-				var fileContents = CSV.ReadPeople(fileName);
+				var itemsToCompareAgainst = new List<Person>();
+				var dedupedLists = new Dictionary<string, List<Person>>();
 
-				if (fileContents != null)
-					itemsToCompareAgainst.AddRange(fileContents);
+				foreach (var fileName in FilesToCompareAgainst)
+				{
+					var fileContents = CSV.ReadPeople(fileName);
+
+					if (fileContents != null)
+						itemsToCompareAgainst.AddRange(fileContents);
+				}
+
+				foreach (var fileName in FilesToDedupe)
+				{
+					var fileContents = CSV.ReadPeople(fileName);
+
+					if (fileContents != null)
+						dedupedLists.Add(fileName, fileContents.Except(itemsToCompareAgainst, new PersonComparer()).ToList());
+				}
+
+				foreach (var dedupedList in dedupedLists)
+				{
+					var saveFile = OutputFolder + "/" + Path.GetFileNameWithoutExtension(dedupedList.Key) + " - Deduped.csv";
+					CSV.WritePeople(dedupedList.Value, saveFile);
+				}
+
+				MessageBox.Show("Dedupe complete.",
+								"Complete",
+								MessageBoxButton.OK,
+								MessageBoxImage.Information);
 			}
-
-			foreach (var fileName in FilesToDedupe)
+			catch (Exception e)
 			{
-				var fileContents = CSV.ReadPeople(fileName);
-	
-				if (fileContents != null)
-					dedupedLists.Add(fileName, fileContents.Except(itemsToCompareAgainst, new PersonComparer()).ToList());
+				MessageBox.Show("Dedupe error: " + e.Message,
+								"Error!",
+								MessageBoxButton.OK,
+								MessageBoxImage.Error);
 			}
-
-			foreach (var dedupedList in dedupedLists)
+			finally
 			{
-				var saveFile = OutputFolder + "/" + Path.GetFileNameWithoutExtension(dedupedList.Key) + " - Deduped.csv";
-				CSV.WritePeople(dedupedList.Value, saveFile);
+				CanInteract = true;
 			}
-
-			CanInteract = true;
-
-			MessageBox.Show("Dedupe complete.",
-							"",
-							MessageBoxButton.OK,
-							MessageBoxImage.Information);
 		}
 		#endregion
 

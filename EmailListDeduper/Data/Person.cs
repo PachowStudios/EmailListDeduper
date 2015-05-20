@@ -1,11 +1,26 @@
 ﻿using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace EmailListDeduper
 {
 	public class Person
 	{
-		public string Name { get; set; }
-		public string Email { get; set; }
+		private const string EmailRegexPattern = @"\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*";
+
+		public string Name 
+		{
+			get { return name; }
+			set { name = FilterData(value); }
+		}
+		public string Email
+		{
+			get { return email; }
+			set { email = FilterData(value); }
+		}
+
+		private string name;
+		private string email;
 
 		public Person()
 			: this("", "")
@@ -15,6 +30,41 @@ namespace EmailListDeduper
 		{
 			this.Name = name;
 			this.Email = email;
+		}
+
+		public bool IsValid()
+		{
+			if (Name == "" || Email == "")
+				return false;
+
+			if (!Regex.IsMatch(Email, EmailRegexPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled))
+				return false;
+
+			return true;
+		}
+
+		private string FilterData(string input)
+		{
+			if (input == null)
+				return string.Empty;
+
+			input = input.Trim();
+
+			StringBuilder stringBuilder = new StringBuilder(input.Length);
+
+			for (int i = 0; i < input.Length; i++)
+			{
+				char c = input[i];
+
+				if (c == ',')
+					c = '.';
+
+				if ((c != ' ' && c != '\t' && c != '\'' && c != (char)160 && c != (char)65533) || 
+					(c == ' ' && input[i + 1] != ' '))
+					stringBuilder.Append(c);
+			}
+
+			return stringBuilder.ToString();
 		}
 	}
 
