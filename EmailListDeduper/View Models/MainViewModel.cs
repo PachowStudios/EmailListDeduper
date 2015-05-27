@@ -40,7 +40,6 @@ namespace EmailListDeduper
 		[ListNotEmpty]
 		public ObservableCollection<string> FilesToDedupe { get; set; }
 
-		[ListNotEmpty]
 		public ObservableCollection<string> FilesToCompareAgainst { get; set; }
 
 		[Required]
@@ -140,9 +139,10 @@ namespace EmailListDeduper
 				foreach (var fileName in FilesToDedupe)
 				{
 					var fileContents = CSV.ReadPeople(fileName);
+					var comparer = new PersonComparer();
 
 					if (fileContents != null)
-						dedupedLists.Add(fileName, fileContents.Except(itemsToCompareAgainst, new PersonComparer()).ToList());
+						dedupedLists.Add(fileName, fileContents.Except(itemsToCompareAgainst, comparer).Distinct(comparer).ToList());
 				}
 
 				foreach (var dedupedList in dedupedLists)
